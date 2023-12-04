@@ -6,7 +6,7 @@
 using namespace std;
 
 const unsigned short MAX_WIDTH = 80;
-const unsigned short MAX_HEIGHT = 24;
+const unsigned short MAX_HEIGHT = 80;
 bool grid[MAX_WIDTH][MAX_HEIGHT];
 
 unsigned short gridWidth = 16, gridHeight = 8;
@@ -44,9 +44,9 @@ unsigned short countLiveNeighbors(unsigned short x, unsigned short y, unsigned s
 
 void shiftGridRight()
 {
-    for (int x = gridWidth - 1; x >= 0; x--)
+    for (int x = MAX_WIDTH - 1; x >= 0; x--)
     {
-        for (int y = 0; y < gridHeight; y++)
+        for (int y = 0; y < MAX_HEIGHT; y++)
         {
             grid[x + 1][y] = grid[x][y];
         }
@@ -55,9 +55,9 @@ void shiftGridRight()
 
 void shiftGridDown()
 {
-    for (int y = gridHeight - 1; y >= 0; y--)
+    for (int y = MAX_HEIGHT - 1; y >= 0; y--)
     {
-        for (int x = 0; x < gridWidth; x++)
+        for (int x = 0; x < MAX_WIDTH; x++)
         {
             grid[x][y + 1] = grid[x][y];
         }
@@ -137,7 +137,7 @@ void loadGridFromFile(const string& fileName)
         {
             for (unsigned short col = 0; col < line.length() && col < MAX_WIDTH; col++)
             {
-                grid[col][row] = (line[col] == '@');
+                grid[col+1][row+1] = (line[col] == '@');
             }
             row++;
         }
@@ -191,7 +191,7 @@ void drawBoard()
 
         for (unsigned short col = 0; col < gridWidth; ++col)
         {
-            char cell = grid[col][row] ? '@' : '-';
+            char cell = grid[col+1][row+1] ? '@' : '-';
             cout << setw(2) << cell;
         }
 
