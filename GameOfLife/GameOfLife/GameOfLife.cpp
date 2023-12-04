@@ -11,10 +11,15 @@ bool grid[MAX_WIDTH][MAX_HEIGHT];
 
 unsigned short gridWidth = 16, gridHeight = 8;
 
-void startNewGame()
+void clearScreen()
 {
-
+#ifdef _WIN32
+    system("CLS");
+#else
+    system("clear");
+#endif
 }
+
 
 void loadGridFromFile(const string& fileName)
 {
@@ -48,9 +53,14 @@ void loadGameFromFile()
     loadGridFromFile(fileName);
 }
 
+void startNewGame()
+{
+
+}
+
 void drawBoard()
 {
-    cout << "  "; 
+    cout << "  ";
     for (unsigned short col = 0; col < gridWidth; ++col)
     {
         if (col + 1 == 1 || col + 1 == gridWidth)
@@ -59,8 +69,8 @@ void drawBoard()
         }
         else
         {
-			cout << setw(2) << ' ';
-		}
+            cout << setw(2) << ' ';
+        }
     }
     cout << endl;
 
@@ -143,16 +153,77 @@ void simulateLife(unsigned short gridWidth, unsigned short gridHeight)
     }
 }
 
-void clearScreen()
+void resizeGrid()
 {
-#ifdef _WIN32
-    system("CLS");
-#else
-    system("clear");
-#endif
 }
 
-int main()
+void toggleCell()
+{
+}
+
+void clearGrid()
+{
+}
+
+void randomizeGrid()
+{
+}
+
+void saveToFile()
+{
+}
+
+
+
+void gameLoop()
+{
+    bool inGame = true;
+    while (inGame)
+    {
+        clearScreen();
+        drawBoard();
+        cout << "1. Step Forward\n";
+        cout << "2. Resize\n";
+        cout << "3. Toggle Cell\n";
+        cout << "4. Clear\n";
+        cout << "5. Randomize\n";
+        cout << "6. Save to File\n";
+        cout << "7. End Game\n";
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            simulateLife(gridWidth, gridHeight);
+            break;
+        case 2:
+            resizeGrid();
+            break;
+        case 3:
+            toggleCell();
+            break;
+        case 4:
+            clearGrid();
+            break;
+        case 5:
+            randomizeGrid();
+            break;
+        case 6:
+            saveToFile();
+            break;
+        case 7:
+            inGame = false;
+            break;
+        default:
+            cout << "Invalid choice. Please try again.\n";
+        }
+    }
+}
+
+int menuLoop()
 {
     bool startedGame = false;
     while (!startedGame)
@@ -177,10 +248,22 @@ int main()
             startedGame = true;
             break;
         case 3:
-            return 0;
+            return -1;
         default:
             clearScreen();
-            std::cout << "Invalid choice. Please try again.\n";
+            cout << "Invalid choice. Please try again.\n";
         }
     }
+}
+
+int main()
+{ 
+    if (menuLoop() == -1)
+    {
+		return 0;
+	}
+
+	gameLoop();
+
+	return 0;
 }
