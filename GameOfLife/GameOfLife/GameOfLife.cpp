@@ -9,6 +9,13 @@ const unsigned short MAX_WIDTH = 80;
 const unsigned short MAX_HEIGHT = 24;
 bool grid[MAX_WIDTH][MAX_HEIGHT];
 
+unsigned short gridWidth = 16, gridHeight = 8;
+
+void startNewGame()
+{
+
+}
+
 void loadGridFromFile(const string& fileName)
 {
     ifstream file(fileName);
@@ -33,7 +40,15 @@ void loadGridFromFile(const string& fileName)
     }
 }
 
-void drawBoard(bool grid[MAX_WIDTH][MAX_HEIGHT], unsigned short gridWidth, unsigned short gridHeight)
+void loadGameFromFile()
+{
+    string fileName;
+    cout << "Enter filename: ";
+    cin >> fileName;
+    loadGridFromFile(fileName);
+}
+
+void drawBoard()
 {
     cout << "  "; 
     for (unsigned short col = 0; col < gridWidth; ++col)
@@ -128,10 +143,44 @@ void simulateLife(unsigned short gridWidth, unsigned short gridHeight)
     }
 }
 
+void clearScreen()
+{
+#ifdef _WIN32
+    system("CLS");
+#else
+    system("clear");
+#endif
+}
+
 int main()
 {
-    unsigned short gridWidth = 16, gridHeight = 8;
-    loadGridFromFile("input.txt");
-	drawBoard(grid, gridWidth, gridHeight);
-	return 0;
+    bool startedGame = false;
+    while (!startedGame)
+    {
+        cout << "Welcome to Conway's Game of Life\n";
+        cout << "1. New Game\n";
+        cout << "2. Load File\n";
+        cout << "3. Exit\n";
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            startNewGame();
+            startedGame = true;
+            break;
+        case 2:
+            loadGameFromFile();
+            startedGame = true;
+            break;
+        case 3:
+            return 0;
+        default:
+            clearScreen();
+            std::cout << "Invalid choice. Please try again.\n";
+        }
+    }
 }
