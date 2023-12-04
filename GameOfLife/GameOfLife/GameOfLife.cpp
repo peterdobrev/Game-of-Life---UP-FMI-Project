@@ -20,6 +20,110 @@ void clearScreen()
 #endif
 }
 
+unsigned short countLiveNeighbors(unsigned short x, unsigned short y, unsigned short gridWidth, unsigned short gridHeight)
+{
+    unsigned short liveNeighbors = 0;
+
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            int col = x + i;
+            int row = y + j;
+
+            // Check the bounds and skip the cell itself
+            if (col >= 0 && col < gridWidth && row >= 0 && row < gridHeight && !(i == 0 && j == 0))
+            {
+                liveNeighbors += grid[col][row];
+            }
+        }
+    }
+
+    return liveNeighbors;
+}
+
+void shiftGridRight()
+{
+    for (int x = gridWidth - 1; x >= 0; x--)
+    {
+        for (int y = 0; y < gridHeight; y++)
+        {
+            grid[x + 1][y] = grid[x][y];
+        }
+    }
+}
+
+void shiftGridDown()
+{
+    for (int y = gridHeight - 1; y >= 0; y--)
+    {
+        for (int x = 0; x < gridWidth; x++)
+        {
+            grid[x][y + 1] = grid[x][y];
+        }
+    }
+}
+
+void expandGridIfNeeded()
+{
+    bool expandRight = false, expandDown = false, expandLeft = false, expandUp = false;
+
+    // Check right border
+    for (unsigned short y = 0; y < gridHeight; y++)
+    {
+        if (!grid[gridWidth - 1][y] && countLiveNeighbors(gridWidth - 1, y, gridWidth, gridHeight) == 3)
+        {
+            expandRight = true;
+        }
+    }
+
+    // Check bottom border
+    for (unsigned short x = 0; x < gridWidth; x++)
+    {
+        if (!grid[x][gridHeight - 1] && countLiveNeighbors(x, gridHeight - 1, gridWidth, gridHeight) == 3)
+        {
+            expandDown = true;
+        }
+    }
+
+    // Check left border
+    for (unsigned short y = 0; y < gridHeight; y++)
+    {
+        if (!grid[0][y] && countLiveNeighbors(0, y, gridWidth, gridHeight) == 3)
+        {
+            expandLeft = true;
+        }
+    }
+
+    // Check top border
+    for (unsigned short x = 0; x < gridWidth; x++)
+    {
+        if (!grid[x][0] && countLiveNeighbors(x, 0, gridWidth, gridHeight) == 3)
+        {
+            expandUp = true;
+        }
+    }
+
+    // Perform expansion
+    if (expandLeft && gridWidth < MAX_WIDTH)
+    {
+        ++gridWidth;
+        shiftGridRight();
+    }
+    if (expandUp && gridHeight < MAX_HEIGHT)
+    {
+        ++gridHeight;
+        shiftGridDown();
+    }
+    if (expandRight && gridWidth < MAX_WIDTH)
+    {
+        gridWidth++;
+    }
+    if (expandDown && gridHeight < MAX_HEIGHT)
+    {
+        gridHeight++;
+    }
+}
 
 void loadGridFromFile(const string& fileName)
 {
@@ -95,30 +199,10 @@ void drawBoard()
     }
 }
 
-unsigned short countLiveNeighbors(unsigned short x, unsigned short y, unsigned short gridWidth, unsigned short gridHeight)
+void simulateLife()
 {
-    unsigned short liveNeighbors = 0;
+    expandGridIfNeeded();
 
-    for (int i = -1; i <= 1; i++)
-    {
-        for (int j = -1; j <= 1; j++)
-        {
-            int col = x + i;
-            int row = y + j;
-
-            // Check the bounds and skip the cell itself
-            if (col >= 0 && col < gridWidth && row >= 0 && row < gridHeight && !(i == 0 && j == 0))
-            {
-                liveNeighbors += grid[col][row];
-            }
-        }
-    }
-
-    return liveNeighbors;
-}
-
-void simulateLife(unsigned short gridWidth, unsigned short gridHeight)
-{
     bool tempGrid[MAX_WIDTH][MAX_HEIGHT] = { false };
 
     for (unsigned short x = 0; x < gridWidth; x++)
@@ -173,8 +257,6 @@ void saveToFile()
 {
 }
 
-
-
 void gameLoop()
 {
     bool inGame = true;
@@ -197,7 +279,7 @@ void gameLoop()
         switch (choice)
         {
         case 1:
-            simulateLife(gridWidth, gridHeight);
+            simulateLife();
             break;
         case 2:
             resizeGrid();
@@ -242,11 +324,11 @@ int menuLoop()
         case 1:
             startNewGame();
             startedGame = true;
-            break;
+            return 1;
         case 2:
             loadGameFromFile();
             startedGame = true;
-            break;
+            return 1;
         case 3:
             return -1;
         default:
