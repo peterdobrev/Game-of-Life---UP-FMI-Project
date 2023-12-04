@@ -1,11 +1,37 @@
 #include <iostream>
 #include <iomanip> // For std::setw
+#include <fstream>
+#include <string>
 
 using namespace std;
 
 const unsigned short MAX_WIDTH = 80;
 const unsigned short MAX_HEIGHT = 24;
 bool grid[MAX_WIDTH][MAX_HEIGHT];
+
+void loadGridFromFile(const string& fileName)
+{
+    ifstream file(fileName);
+    string line;
+    unsigned short row = 0;
+
+    if (file.is_open())
+    {
+        while (getline(file, line) && row < MAX_HEIGHT)
+        {
+            for (unsigned short col = 0; col < line.length() && col < MAX_WIDTH; col++)
+            {
+                grid[col][row] = (line[col] == '@');
+            }
+            row++;
+        }
+        file.close();
+    }
+    else
+    {
+        cout << "Unable to open file" << endl;
+    }
+}
 
 void drawBoard(bool grid[MAX_WIDTH][MAX_HEIGHT], unsigned short gridWidth, unsigned short gridHeight)
 {
@@ -101,9 +127,11 @@ void simulateLife(unsigned short gridWidth, unsigned short gridHeight)
         }
     }
 }
+
 int main()
 {
     unsigned short gridWidth = 16, gridHeight = 8;
+    loadGridFromFile("input.txt");
 	drawBoard(grid, gridWidth, gridHeight);
 	return 0;
 }
