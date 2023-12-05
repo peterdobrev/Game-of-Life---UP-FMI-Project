@@ -237,9 +237,38 @@ void simulateLife()
     }
 }
 
+void killCellsOutOfBoard()
+{
+    for (unsigned short i = gridWidth; i < MAX_WIDTH; i++)
+    {
+        for (unsigned short j = gridHeight; j < MAX_HEIGHT; j++)
+        {
+            grid[i][j] = false;
+        }
+    }
+}
+
 void resizeGrid()
 {
+    unsigned short newX, newY;
+
+    cout << "Current grid size: " << gridWidth << " x " << gridHeight << endl;
+    cout << "Enter new width (X) and height (Y): ";
+    cin >> newX >> newY;
+
+    if (newX > MAX_WIDTH || newY > MAX_HEIGHT || newX < 1 || newY < 1)
+    {
+        cout << "Invalid dimensions. Please enter values between 1 and "
+            << MAX_WIDTH << " for width, and between 1 and " << MAX_HEIGHT << " for height." << endl;
+        return;
+    }
+
+    gridWidth = newX;
+    gridHeight = newY;
+
+    killCellsOutOfBoard();
 }
+
 
 void toggleCell()
 {
