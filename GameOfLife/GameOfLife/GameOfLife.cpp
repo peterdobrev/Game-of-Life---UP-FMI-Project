@@ -9,7 +9,7 @@ using namespace std;
 
 const unsigned short MAX_WIDTH = 80;
 const unsigned short MAX_HEIGHT = 80;
-bool grid[MAX_WIDTH][MAX_HEIGHT];
+bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1];
 
 unsigned short gridWidth = 16, gridHeight = 8;
 
@@ -219,7 +219,6 @@ void loadGridFromFile(const string& fileName)
     }
 }
 
-
 void drawBoard()
 {
     cout << "  ";
@@ -373,6 +372,29 @@ void randomizeGrid()
 
 void saveToFile()
 {
+    string fileName;
+    cout << "Enter the filename to save the game state: ";
+    cin >> fileName;
+
+    ofstream outFile(fileName);
+
+    if (outFile.is_open())
+    {
+        for (unsigned short y = 1; y <= gridHeight; y++)
+        {
+            for (unsigned short x = 1; x <= gridWidth; x++)
+            {
+                outFile << (grid[x][y] ? '@' : '-');
+            }
+            outFile << endl;
+        }
+        outFile.close();
+        cout << "Game saved to " << fileName << endl;
+    }
+    else
+    {
+        cout << "Unable to create or write to the file." << endl;
+    }   
 }
 
 void gameLoop()
@@ -425,10 +447,16 @@ void gameLoop()
 
 void loadGameFromFile()
 {
+    gridWidth = 16;
+    gridHeight = 8;
+    clearGrid();
+
     string fileName;
     cout << "Enter filename: ";
     cin >> fileName;
+
     loadGridFromFile(fileName);
+
     gameLoop();
 }
 
@@ -437,9 +465,9 @@ void startNewGame()
     gridWidth = 16;
     gridHeight = 8;
     clearGrid();
+
     gameLoop();
 }
-
 
 void menuLoop()
 {
