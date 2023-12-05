@@ -1,3 +1,19 @@
+/**
+*
+* Solution to course project #2
+* Introduction to programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2023/2024
+*
+* @author Petar Dobrev
+* @idnumber 8MI0600344
+* @compiler VC
+*
+* 
+*
+*/
+
+
 #include <iostream>
 #include <iomanip>  // For std::setw
 #include <fstream>  // For file I/O
@@ -9,7 +25,7 @@ using namespace std;
 
 const unsigned short MAX_WIDTH = 80;
 const unsigned short MAX_HEIGHT = 80;
-bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1];
+bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1]; // The grid is 1-based
 
 unsigned short gridWidth = 16, gridHeight = 8;
 
