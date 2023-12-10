@@ -25,11 +25,9 @@ using namespace std;
 
 const unsigned short MAX_WIDTH = 80;
 const unsigned short MAX_HEIGHT = 80;
-bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1]; // The grid is 1-based
 
-unsigned short gridWidth = 16, gridHeight = 8;
 
-void timeDelay(int milliseconds)
+void timeDelay(const int milliseconds)
 {
     long pause;
     clock_t now, then;
@@ -49,7 +47,7 @@ void clearScreen()
 #endif
 }
 
-unsigned short countLiveNeighbors(unsigned short x, unsigned short y, unsigned short gridWidth, unsigned short gridHeight)
+unsigned short countLiveNeighbors(const unsigned short x, const unsigned short y, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     unsigned short liveNeighbors = 0;
 
@@ -71,7 +69,7 @@ unsigned short countLiveNeighbors(unsigned short x, unsigned short y, unsigned s
     return liveNeighbors;
 }
 
-void killCells(unsigned short xStart, unsigned short xEnd, unsigned short yStart, unsigned short yEnd)
+void killCells(const unsigned short xStart, const unsigned short xEnd, const unsigned short yStart, const unsigned short yEnd, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     for (unsigned short i = xStart; i <= xEnd; i++)
     {
@@ -82,16 +80,16 @@ void killCells(unsigned short xStart, unsigned short xEnd, unsigned short yStart
     }
 }
 
-void clearGrid()
+void clearGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
-    killCells(0, MAX_WIDTH, 0, MAX_HEIGHT);
+    killCells(0, MAX_WIDTH, 0, MAX_HEIGHT, grid, gridWidth, gridHeight);
 }
 
-void shiftGridRight(unsigned short positions)
+void shiftGridRight(const unsigned short positions, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     if (gridWidth + positions >= MAX_WIDTH)
     {
-		positions = MAX_WIDTH - gridWidth; // Shift only to the maximum allowed width
+        return; // Shift only to the maximum allowed width
 	}
 
     if (positions == 0)
@@ -109,19 +107,14 @@ void shiftGridRight(unsigned short positions)
 
     gridWidth += positions;
 
-    killCells(0, positions, 0, MAX_HEIGHT);
+    killCells(0, positions, 0, MAX_HEIGHT, grid, gridWidth, gridHeight);
 }
 
-void shiftGridDown(unsigned short positions)
+void shiftGridDown(const unsigned short positions, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     if (gridHeight + positions >= MAX_HEIGHT)
     {
-        positions = MAX_HEIGHT - gridHeight; // Shift only to the maximum allowed height
-    }
-
-    if (positions == 0)
-    {
-        return;
+        return; // Shift only to the maximum allowed height
     }
 
     for (int y = gridHeight + positions; y >= positions; y--)
@@ -134,10 +127,10 @@ void shiftGridDown(unsigned short positions)
 
     gridHeight += positions;
 
-    killCells(0, MAX_WIDTH, 0, positions);
+    killCells(0, MAX_WIDTH, 0, positions, grid, gridWidth, gridHeight);
 }
 
-void expandGridForSimulation()
+void expandGridForSimulation(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     bool expandRight = false, expandDown = false, expandLeft = false, expandUp = false;
 
@@ -149,7 +142,7 @@ void expandGridForSimulation()
             break; // No expansion if grid width exceeds or equals max width
         }
 
-        if (!grid[gridWidth + 1][y] && countLiveNeighbors(gridWidth + 1, y, gridWidth, gridHeight) == 3)
+        if (!grid[gridWidth + 1][y] && countLiveNeighbors(gridWidth + 1, y, grid, gridWidth, gridHeight) == 3)
         {
             expandRight = true;
         }
@@ -163,7 +156,7 @@ void expandGridForSimulation()
 			break; // No expansion if grid height exceeds or equals max height
 		}
 
-        if (!grid[x][gridHeight + 1] && countLiveNeighbors(x, gridHeight + 1, gridWidth, gridHeight) == 3)
+        if (!grid[x][gridHeight + 1] && countLiveNeighbors(x, gridHeight + 1, grid, gridWidth, gridHeight) == 3)
         {
             expandDown = true;
         }
@@ -177,7 +170,7 @@ void expandGridForSimulation()
             break; // No expansion if grid width exceeds or equals max width
         }
 
-        if (!grid[0][y] && countLiveNeighbors(0, y, gridWidth, gridHeight) == 3)
+        if (!grid[0][y] && countLiveNeighbors(0, y, grid, gridWidth, gridHeight) == 3)
         {
             expandLeft = true;
         }
@@ -191,7 +184,7 @@ void expandGridForSimulation()
 			break; // No expansion if grid height exceeds or equals max height
 		}
 
-        if (!grid[x][0] && countLiveNeighbors(x, 0, gridWidth, gridHeight) == 3)
+        if (!grid[x][0] && countLiveNeighbors(x, 0, grid, gridWidth, gridHeight) == 3)
         {
             expandUp = true;
         }
@@ -201,12 +194,12 @@ void expandGridForSimulation()
     if (expandLeft && gridWidth < MAX_WIDTH)
     {
         ++gridWidth;
-        shiftGridRight(1);
+        shiftGridRight(1, grid, gridWidth, gridHeight);
     }
     if (expandUp && gridHeight < MAX_HEIGHT)
     {
         ++gridHeight;
-        shiftGridDown(1);
+        shiftGridDown(1, grid, gridWidth, gridHeight);
     }
     if (expandRight && gridWidth < MAX_WIDTH)
     {
@@ -218,7 +211,7 @@ void expandGridForSimulation()
     }
 }
 
-void loadGridFromFile(const string& fileName)
+void loadGridFromFile(const string& fileName, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     ifstream file(fileName);
     string line;
@@ -245,7 +238,7 @@ void loadGridFromFile(const string& fileName)
     }
 }
 
-void drawBoard()
+void drawBoard(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     cout << "  ";
     for (unsigned short col = 1; col <= gridWidth; ++col)
@@ -282,9 +275,9 @@ void drawBoard()
     }
 }
 
-void simulateLife()
+void simulateLife(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
-    expandGridForSimulation();
+    expandGridForSimulation(grid, gridWidth, gridHeight);
 
     bool tempGrid[MAX_WIDTH+1][MAX_HEIGHT+1] = { false };
 
@@ -292,7 +285,7 @@ void simulateLife()
     {
         for (unsigned short y = 1; y <= gridHeight; y++)
         {
-            unsigned short liveNeighbors = countLiveNeighbors(x, y, gridWidth, gridHeight);
+            unsigned short liveNeighbors = countLiveNeighbors(x, y, grid, gridWidth, gridHeight);
             bool isAlive = grid[x][y];
 
             if (isAlive && (liveNeighbors < 2 || liveNeighbors > 3))
@@ -320,7 +313,7 @@ void simulateLife()
     }
 }
 
-void resizeGrid()
+void resizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     unsigned short newX, newY;
 
@@ -339,10 +332,10 @@ void resizeGrid()
     gridWidth = newX;
     gridHeight = newY;
 
-    killCells(gridWidth + 1, MAX_WIDTH, gridHeight + 1, MAX_HEIGHT);
+    killCells(gridWidth + 1, MAX_WIDTH, gridHeight + 1, MAX_HEIGHT, grid, gridWidth, gridHeight);
 }
 
-void toggleCell()
+void toggleCell(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     short x, y;
 
@@ -382,7 +375,7 @@ void toggleCell()
         {
             return;
         }
-        shiftGridRight(1 - x);
+        shiftGridRight(1 - x, grid, gridWidth, gridHeight);
         x = 1;
     }
 
@@ -392,7 +385,7 @@ void toggleCell()
         {
             return;
         }
-        shiftGridDown(1 - y);
+        shiftGridDown(1 - y, grid, gridWidth, gridHeight);
         y = 1;
     }
     
@@ -401,7 +394,7 @@ void toggleCell()
 
 }
 
-void randomizeGrid()
+void randomizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     unsigned int N;
     cout << "Enter a number N for randomization (1 in N cells will be alive): ";
@@ -426,7 +419,7 @@ void randomizeGrid()
     }
 }
 
-void saveToFile()
+void saveToFile(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     string fileName;
     cout << "Enter the filename to save the game state: ";
@@ -453,7 +446,7 @@ void saveToFile()
     }   
 }
 
-void autoPlay()
+void autoPlay(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     unsigned short steps;
     cout << "Enter the number of steps to simulate: ";
@@ -466,20 +459,20 @@ void autoPlay()
     for (unsigned short i = 1; i <= steps; i++)
     {
         clearScreen();
-        drawBoard();
+        drawBoard(grid, gridWidth, gridHeight);
         cout << "Step " << i << " of " << steps << endl;
-        simulateLife();
+        simulateLife(grid, gridWidth, gridHeight);
         timeDelay(delay);
     }
 }
 
-void gameLoop()
+void gameLoop(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
     bool inGame = true;
     while (inGame)
     {
         clearScreen();
-        drawBoard();
+        drawBoard(grid, gridWidth, gridHeight);
         cout << "1. Step Forward\n";
         cout << "2. Auto-Play\n";
         cout << "3. Resize\n";
@@ -496,25 +489,25 @@ void gameLoop()
         switch (choice)
         {
         case 1:
-            simulateLife();
+            simulateLife(grid, gridWidth, gridHeight);
             break;
         case 2:
-            autoPlay();
+            autoPlay(grid, gridWidth, gridHeight);
             break;
         case 3:
-            resizeGrid();
+            resizeGrid(grid, gridWidth, gridHeight);
             break;
         case 4:
-            toggleCell();
+            toggleCell(grid, gridWidth, gridHeight);
             break;
         case 5:
-            clearGrid();
+            clearGrid(grid, gridWidth, gridHeight);
             break;
         case 6:
-            randomizeGrid();
+            randomizeGrid(grid, gridWidth, gridHeight);
             break;
         case 7:
-            saveToFile();
+            saveToFile(grid, gridWidth, gridHeight);
             break;
         case 8:
             inGame = false;
@@ -525,32 +518,32 @@ void gameLoop()
     }
 }
 
-void loadGameFromFile()
+void loadGameFromFile(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
-    gridWidth = 16;
-    gridHeight = 8;
-    clearGrid();
+    clearGrid(grid, gridWidth, gridHeight);
 
     string fileName;
     cout << "Enter filename: ";
     cin >> fileName;
 
-    loadGridFromFile(fileName);
+    loadGridFromFile(fileName, grid, gridWidth, gridHeight);
 
-    gameLoop();
+    gameLoop(grid, gridWidth, gridHeight);
 }
 
-void startNewGame()
+void startNewGame(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)
 {
-    gridWidth = 16;
-    gridHeight = 8;
-    clearGrid();
+    clearGrid(grid, gridWidth, gridHeight);
 
-    gameLoop();
+    gameLoop(grid, gridWidth, gridHeight);
 }
 
 void menuLoop()
 {
+    bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1]; // The grid is 1-based
+
+    unsigned short gridWidth = 16, gridHeight = 8;
+
     bool exitProgram = false;
     while (!exitProgram)
     {
@@ -567,10 +560,10 @@ void menuLoop()
         switch (choice)
         {
         case 1:
-            startNewGame();
+            startNewGame(grid, gridWidth, gridHeight);
             break;
         case 2:
-            loadGameFromFile();
+            loadGameFromFile(grid, gridWidth, gridHeight);
             break;
         case 3:
             exitProgram = true;
