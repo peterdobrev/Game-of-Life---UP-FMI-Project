@@ -29,6 +29,17 @@ bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1]; // The grid is 1-based
 
 unsigned short gridWidth = 16, gridHeight = 8;
 
+void timeDelay(int milliseconds)
+{
+    long pause;
+    clock_t now, then;
+
+    pause = milliseconds * (CLOCKS_PER_SEC / 1000);
+    now = then = clock();
+    while ((now - then) < pause)
+        now = clock();
+}
+
 void clearScreen()
 {
 #ifdef _WIN32
@@ -413,6 +424,26 @@ void saveToFile()
     }   
 }
 
+void autoPlay()
+{
+    unsigned short steps;
+    cout << "Enter the number of steps to simulate: ";
+    cin >> steps;
+
+    unsigned short delay;
+    cout << "Enter the delay between steps (in milliseconds): ";
+    cin >> delay;
+
+    for (unsigned short i = 1; i <= steps; i++)
+    {
+        clearScreen();
+        drawBoard();
+        cout << "Step " << i << " of " << steps << endl;
+        simulateLife();
+        timeDelay(delay);
+    }
+}
+
 void gameLoop()
 {
     bool inGame = true;
@@ -421,12 +452,13 @@ void gameLoop()
         clearScreen();
         drawBoard();
         cout << "1. Step Forward\n";
-        cout << "2. Resize\n";
-        cout << "3. Toggle Cell\n";
-        cout << "4. Clear\n";
-        cout << "5. Randomize\n";
-        cout << "6. Save to File\n";
-        cout << "7. End Game\n";
+        cout << "2. Auto-Play\n";
+        cout << "3. Resize\n";
+        cout << "4. Toggle Cell\n";
+        cout << "5. Clear\n";
+        cout << "6. Randomize\n";
+        cout << "7. Save to File\n";
+        cout << "8. End Game\n";
         cout << "Enter your choice: ";
 
         int choice;
@@ -438,21 +470,24 @@ void gameLoop()
             simulateLife();
             break;
         case 2:
-            resizeGrid();
+            autoPlay();
             break;
         case 3:
-            toggleCell();
+            resizeGrid();
             break;
         case 4:
-            clearGrid();
+            toggleCell();
             break;
         case 5:
-            randomizeGrid();
+            clearGrid();
             break;
         case 6:
-            saveToFile();
+            randomizeGrid();
             break;
         case 7:
+            saveToFile();
+            break;
+        case 8:
             inGame = false;
             break;
         default:
