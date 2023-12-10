@@ -52,3 +52,13 @@ The game is played on an initially m×n grid, with the possibility of automatic 
 - `void menuLoop()`
 
 ---
+
+## Images
+
+### Simulation of the game:
+https://github.com/peterdobrev/Game-of-Life---UP-FMI-Project/assets/78638859/4b0e642b-3beb-48d3-92f6-cfc951417612
+Video shows randomizing the grid and then simulating life over 100 steps.
+
+
+
+
