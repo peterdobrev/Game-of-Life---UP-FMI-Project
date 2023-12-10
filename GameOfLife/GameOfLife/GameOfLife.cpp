@@ -91,24 +91,23 @@ void shiftGridRight(unsigned short positions)
 {
     if (gridWidth + positions >= MAX_WIDTH)
     {
-		positions = MAX_WIDTH - gridWidth - 1; // Shift only to the maximum allowed width
+		positions = MAX_WIDTH - gridWidth; // Shift only to the maximum allowed width
 	}
+
+    if (positions == 0)
+    {
+        return;
+    }
 
     for (int x = gridWidth + positions; x >= positions; x--)
     {
         for (int y = 0; y < MAX_HEIGHT; y++)
         {
-            try
-            {
-                grid[x][y] = grid[x - positions][y];
-
-            }
-            catch (const std::exception&)
-            {
-
-            }
+            grid[x][y] = grid[x - positions][y];
         }
     }
+
+    gridWidth += positions;
 
     killCells(0, positions, 0, MAX_HEIGHT);
 }
@@ -117,28 +116,28 @@ void shiftGridDown(unsigned short positions)
 {
     if (gridHeight + positions >= MAX_HEIGHT)
     {
-        positions = MAX_HEIGHT - gridHeight - 1; // Shift only to the maximum allowed height
+        positions = MAX_HEIGHT - gridHeight; // Shift only to the maximum allowed height
+    }
+
+    if (positions == 0)
+    {
+        return;
     }
 
     for (int y = gridHeight + positions; y >= positions; y--)
     {
         for (int x = 0; x < MAX_WIDTH; x++)
         {
-            try
-            {
-                grid[x][y] = grid[x][y - positions];
-            }
-            catch (const std::exception&)
-            {
-
-            }
+            grid[x][y] = grid[x][y - positions];
         }
     }
+
+    gridHeight += positions;
 
     killCells(0, MAX_WIDTH, 0, positions);
 }
 
-void expandGridIfNeeded()
+void expandGridForSimulation()
 {
     bool expandRight = false, expandDown = false, expandLeft = false, expandUp = false;
 
@@ -285,9 +284,9 @@ void drawBoard()
 
 void simulateLife()
 {
-    expandGridIfNeeded();
+    expandGridForSimulation();
 
-    bool tempGrid[MAX_WIDTH][MAX_HEIGHT] = { false };
+    bool tempGrid[MAX_WIDTH+1][MAX_HEIGHT+1] = { false };
 
     for (unsigned short x = 1; x <= gridWidth; x++)
     {
@@ -326,6 +325,7 @@ void resizeGrid()
     unsigned short newX, newY;
 
     cout << "Current grid size: " << gridWidth << " x " << gridHeight << endl;
+    cout << "Maximum allowed grid size is " << MAX_WIDTH << " x " << MAX_HEIGHT << endl;
     cout << "Enter new width (X) and height (Y): ";
     cin >> newX >> newY;
 
@@ -344,29 +344,58 @@ void resizeGrid()
 
 void toggleCell()
 {
-    unsigned short x, y;
+    short x, y;
 
+    cout << "Maximum allowed grid size is " << MAX_WIDTH << " x " << MAX_HEIGHT << endl;
     cout << "Enter the coordinates to toggle (X Y): ";
     cin >> x >> y;
+
+    bool shouldShiftRight = false, shouldShiftDown = false;
+
+    shouldShiftRight = x < 1;
+    shouldShiftDown = y < 1;
 
     if (x > gridWidth || y > gridHeight)
     {
         // If the coordinates are outside the current grid, expand the grid
-        if (x >= MAX_WIDTH || y >= MAX_HEIGHT)
+        
+        if (x > MAX_WIDTH || y > MAX_HEIGHT)
         {
-            cout << "Coordinates are outside the maximum allowed grid size." << endl;
+            // Coordinates are outside the maximum allowed grid size
             return;
         }
 
         if (x > gridWidth)
         {
-            gridWidth = x + 1;
+            gridWidth = x;
         }
         if (y > gridHeight)
         {
-            gridHeight = y + 1;
+            gridHeight = y;
         }
     }
+   
+    // Adjust coordinates if they are negative
+    if (x < 1)
+    {
+        if (1 - x + gridWidth > MAX_WIDTH)
+        {
+            return;
+        }
+        shiftGridRight(1 - x);
+        x = 1;
+    }
+
+    if (y < 1)
+    {
+        if (1 - y + gridHeight > MAX_HEIGHT)
+        {
+            return;
+        }
+        shiftGridDown(1 - y);
+        y = 1;
+    }
+    
 
     grid[x][y] = !grid[x][y];
 
