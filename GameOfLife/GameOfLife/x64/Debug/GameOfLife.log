@@ -1,3 +1,3 @@
 ﻿  GameOfLife.cpp
-C:\Users\User\Documents\GitHub\Game-of-Life---UP-FMI-Project\GameOfLife\GameOfLife\GameOfLife.cpp(403,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\User\Documents\GitHub\Game-of-Life---UP-FMI-Project\GameOfLife\GameOfLife\GameOfLife.cpp(409,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   GameOfLife.vcxproj -> C:\Users\User\Documents\GitHub\Game-of-Life---UP-FMI-Project\GameOfLife\x64\Debug\GameOfLife.exe
