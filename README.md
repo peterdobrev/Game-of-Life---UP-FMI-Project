@@ -16,7 +16,8 @@ This project implements John Conway's Game of Life, a cellular automaton that si
 - A dead cell with exactly three live neighbors becomes alive.
 
 ### Simulation of the game:
-![ezgif com-video-to-gif](https://github.com/peterdobrev/Game-of-Life---UP-FMI-Project/assets/78638859/05b74204-31a8-4829-a35d-f50f4929ea5d)
+![ezgif com-video-to-gif (1)](https://github.com/peterdobrev/Game-of-Life---UP-FMI-Project/assets/78638859/a750d9e8-bf07-4c91-a526-2d17e758ee83)
+<br>
 Video shows randomizing the grid and then simulating life over 100 steps.
 
 
