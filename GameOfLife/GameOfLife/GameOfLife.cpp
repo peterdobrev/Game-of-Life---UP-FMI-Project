@@ -26,6 +26,16 @@ using namespace std;
 const unsigned short MAX_WIDTH = 80;
 const unsigned short MAX_HEIGHT = 80;
 
+bool hasInputErrors() {
+    if (cin.fail()) {
+        cin.clear(); // Clears error flags
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignores the rest of the current line
+        return true;
+    }
+
+    return false;
+}
+
 void timeDelay(const int milliseconds) {
     long pause;
     clock_t now, then;
@@ -67,15 +77,18 @@ unsigned short countLiveNeighbors(const unsigned short x, const unsigned short y
     return liveNeighbors;
 }
 
-void killCells(const unsigned short xStart, const unsigned short xEnd, 
-               const unsigned short yStart, const unsigned short yEnd, 
+void killCells(unsigned short xStart, unsigned short xEnd, 
+               unsigned short yStart, unsigned short yEnd, 
                bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1]) {
     if (xStart > xEnd || yStart > yEnd) {
         return;
     }
 
-    for (unsigned short i = xStart; i <= min(xEnd, MAX_WIDTH); i++) {
-        for (unsigned short j = yStart; j <= min(yStart, MAX_HEIGHT); j++) {
+   xEnd = min(xEnd, MAX_WIDTH);
+   yEnd = min(yEnd, MAX_HEIGHT);
+
+    for (unsigned short i = xStart; i <= xEnd; i++) {
+        for (unsigned short j = yStart; j <= yEnd; j++) {
             grid[i][j] = false;
         }
     }
@@ -267,7 +280,14 @@ void simulateLife(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& grid
     }
 }
 
-void resizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
+void resizeGrid(unsigned short newX, unsigned short newY, unsigned short& gridWidth, unsigned short& gridHeight) {
+    if (newX > 1 && newX <= MAX_WIDTH && newY > 1 && newY <= MAX_HEIGHT)         {
+        gridWidth = newX;
+        gridHeight = newY;
+    }
+}
+
+void resizeGridMenu(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
     unsigned short newX, newY;
 
     cout << "Current grid size: " << gridWidth << " x " << gridHeight << endl;
@@ -275,72 +295,92 @@ void resizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWi
     cout << "Enter new width (X) and height (Y): ";
     cin >> newX >> newY;
 
-    if (newX > MAX_WIDTH || newY > MAX_HEIGHT || newX < 1 || newY < 1) {
+    while (hasInputErrors() || newX > MAX_WIDTH || newY > MAX_HEIGHT || newX < 1 || newY < 1) {
         cout << "Invalid dimensions. Please enter values between 1 and "
             << MAX_WIDTH << " for width, and between 1 and " << MAX_HEIGHT << " for height." << endl;
-        return;
+        cout << "Enter new width (X) and height (Y): ";
+        cin >> newX >> newY;
     }
 
-    gridWidth = newX;
-    gridHeight = newY;
+    resizeGrid(newX, newY, gridWidth, gridHeight);
 
     killCells(gridWidth + 1, MAX_WIDTH, gridHeight + 1, MAX_HEIGHT, grid);
 }
 
-void toggleCell(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
+bool isCellValid(const short x, const short y, const unsigned short& gridWidth, const unsigned short& gridHeight, bool canBeNegative = false) {
+    bool isXValid, isYValid;
+
+    if (canBeNegative) {
+        isXValid = x <= MAX_WIDTH 
+            && (1 - x + gridWidth <= MAX_WIDTH); // Check to see if the grid can not be expanded to fit the cell
+        isYValid = y <= MAX_HEIGHT
+            && (1 - y + gridHeight <= MAX_HEIGHT); // Check to see if the grid can not be expanded to fit the cell
+	}
+    else         {
+    		isXValid = x <= MAX_WIDTH && x >= 1;
+		isYValid = y <= MAX_HEIGHT && y >= 1;
+    }
+    
+    return isXValid && isYValid;
+}
+
+void toggleCell(const unsigned short x, const unsigned short y, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight) {
+    if (!isCellValid(x, y, gridWidth, gridHeight)) {
+		return;
+	}
+    grid[x][y] = !grid[x][y];
+}
+
+void toggleCellMenu(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
     short x, y;
 
     cout << "Maximum allowed grid size is " << MAX_WIDTH << " x " << MAX_HEIGHT << endl;
     cout << "Enter the coordinates to toggle (X Y): ";
     cin >> x >> y;
 
-    bool shouldShiftRight = false, shouldShiftDown = false;
 
-    shouldShiftRight = x < 1;
-    shouldShiftDown = y < 1;
+    while (hasInputErrors() || !isCellValid(x,y, gridWidth, gridHeight, true)) {
+        cout << "Invalid coordinates. Please enter values between " << (-1) * (MAX_WIDTH - gridWidth - 1) << " and "
+            << MAX_WIDTH << " for X, and between " << (-1) * (MAX_HEIGHT - gridHeight - 1) << " and " << MAX_HEIGHT << " for Y." << endl;
+		cout << "Enter the coordinates to toggle (X Y): ";
+		cin >> x >> y;
+	}
+
+    bool shouldShiftRight = x < 1;
+    bool shouldShiftDown = y < 1;
 
     if (x > gridWidth || y > gridHeight) {
         // If the coordinates are outside the current grid, expand the grid
 
-        if (x > MAX_WIDTH || y > MAX_HEIGHT) {
-            // Coordinates are outside the maximum allowed grid size
-            return;
-        }
-
         if (x > gridWidth) {
-            gridWidth = x;
+            resizeGrid(x, gridHeight, gridWidth, gridHeight);
         }
         if (y > gridHeight) {
-            gridHeight = y;
+            resizeGrid(gridWidth, y, gridWidth, gridHeight);
         }
     }
 
     // Adjust coordinates if they are negative
     if (x < 1) {
-        if (1 - x + gridWidth > MAX_WIDTH) {
-            return;
-        }
         shiftGridRight(1 - x, grid, gridWidth);
         x = 1;
     }
 
     if (y < 1) {
-        if (1 - y + gridHeight > MAX_HEIGHT) {
-            return;
-        }
         shiftGridDown(1 - y, grid, gridWidth);
         y = 1;
     }
 
-
-    grid[x][y] = !grid[x][y];
-
+    toggleCell(x, y, grid, gridWidth, gridHeight);
 }
 
 void randomizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight) {
-    unsigned int N;
-    cout << "Enter a number N for randomization (1 in N cells will be alive): ";
-    cin >> N;
+    unsigned int N = 0;
+
+    while (hasInputErrors() || N < 1 || N > 10000000) {
+        cout << "Enter a number N for randomization (1 in N cells will be alive): ";
+        cin >> N;
+    }
 
     // Seed the random number generator
     srand(time(0));
@@ -379,15 +419,7 @@ void saveToFile(const bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned s
     }
 }
 
-void autoPlay(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
-    unsigned short steps;
-    cout << "Enter the number of steps to simulate: ";
-    cin >> steps;
-
-    unsigned short delay;
-    cout << "Enter the delay between steps (in milliseconds): ";
-    cin >> delay;
-
+void autoPlay(const short steps, const short delay, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
     for (unsigned short i = 1; i <= steps; i++) {
         clearScreen();
         drawBoard(grid, gridWidth, gridHeight);
@@ -395,6 +427,30 @@ void autoPlay(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidt
         simulateLife(grid, gridWidth, gridHeight);
         timeDelay(delay);
     }
+}
+
+void autoPlayMenu(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
+    short steps;
+    cout << "Enter the number of steps to simulate: ";
+    cin >> steps;
+
+    while (hasInputErrors() || steps < 1) {
+		cout << "Invalid number of steps. Please enter a positive number." << endl;
+		cout << "Enter the number of steps to simulate: ";
+		cin >> steps;
+	}
+
+    short delay;
+    cout << "Enter the delay between steps (in milliseconds): ";
+    cin >> delay;
+
+    while (hasInputErrors() || delay < 0) {
+        cout << "Invalid delay. Please enter a non-negative number." << endl;
+        cout << "Enter the delay between steps (in milliseconds): ";
+        cin >> delay;        
+    }
+
+    autoPlay(steps, delay, grid, gridWidth, gridHeight);
 }
 
 void gameLoop(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
@@ -415,18 +471,23 @@ void gameLoop(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidt
         int choice;
         cin >> choice;
 
+        if (hasInputErrors()) {
+            continue; // Skip the rest of the loop iteration
+        }
+
+        
         switch (choice) {
             case 1:
                 simulateLife(grid, gridWidth, gridHeight);
                 break;
             case 2:
-                autoPlay(grid, gridWidth, gridHeight);
+                autoPlayMenu(grid, gridWidth, gridHeight);
                 break;
             case 3:
-                resizeGrid(grid, gridWidth, gridHeight);
+                resizeGridMenu(grid, gridWidth, gridHeight);
                 break;
             case 4:
-                toggleCell(grid, gridWidth, gridHeight);
+                toggleCellMenu(grid, gridWidth, gridHeight);
                 break;
             case 5:
                 clearGrid(grid);
@@ -446,12 +507,23 @@ void gameLoop(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidt
     }
 }
 
+bool fileExists(const string& fileName) {
+    ifstream file(fileName);
+    return file.good();
+}
+
 void loadGameFromFile(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight) {
     clearGrid(grid);
 
     string fileName;
     cout << "Enter filename: ";
     cin >> fileName;
+
+    while (fileName.empty() || !fileExists(fileName)) {
+        cout << "Invalid file name or file does not exist.\n";
+        cout << "Enter filename: ";
+        cin >> fileName;
+    }
 
     loadGridFromFile(fileName, grid, gridWidth, gridHeight);
 
@@ -480,6 +552,10 @@ void menuLoop() {
 
         int choice;
         cin >> choice;
+
+        if (hasInputErrors()) {
+			continue; // Skip the rest of the loop iteration
+		}
 
         switch (choice) {
             case 1:
