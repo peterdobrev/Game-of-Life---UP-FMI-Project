@@ -29,7 +29,7 @@ The game is played on an initially m×n grid, with the possibility of automatic 
 - Interactive menu to step forward in the game, resize the grid, toggle cell state, clear the grid, randomize the grid, save the game, or end the current game.
 - Automatic grid expansion if a cell outside the current grid boundaries needs to be revived.
 - Autoplay to simulate the game so that the user can just sit back and watch.
-
+- Save to file.
 
 
 
