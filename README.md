@@ -30,36 +30,6 @@ The game is played on an initially m×n grid, with the possibility of automatic 
 - Automatic grid expansion if a cell outside the current grid boundaries needs to be revived.
 - Autoplay to simulate the game so that the user can just sit back and watch.
 
-## Functions Implemented
-- `void timeDelay(const int milliseconds)`
-- `void clearScreen()`
-- `unsigned short countLiveNeighbors(const unsigned short x, const unsigned short y, const bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight)`
-- `void killCells(const unsigned short xStart, const unsigned short xEnd, const unsigned short yStart, const unsigned short yEnd, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1])`
-- `void timeDelay(const int milliseconds)`
-- `void timeDelay(const int milliseconds)`
-- `void clearScreen()`
-- `unsigned short countLiveNeighbors(const unsigned short x, const unsigned short y, const bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight)`
-- `void killCells(const unsigned short xStart, const unsigned short xEnd, const unsigned short yStart, const unsigned short yEnd, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1])`
-- `void clearGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1])`
-- `void shiftGridRight(const unsigned short positions, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth)`
-- `void shiftGridDown(const unsigned short positions, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridHeight)`
-- `void expandGridForSimulation(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void loadGridFromFile(const string& fileName, bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void drawBoard(const bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight)`
-- `void simulateLife(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void resizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void toggleCell(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void randomizeGrid(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight)`
-- `void saveToFile(const bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], const unsigned short& gridWidth, const unsigned short& gridHeight)`
-- `void autoPlay(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void gameLoop(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void loadGameFromFile(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1], unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void startNewGame(bool grid[MAX_WIDTH + 1][MAX_HEIGHT + 1],unsigned short& gridWidth, unsigned short& gridHeight)`
-- `void menuLoop()`
-
----
-
-
 
 
 
